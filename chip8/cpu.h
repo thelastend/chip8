@@ -9,6 +9,6 @@ typedef void (*instructionCalls)(void);
 
 void InitCpu(void);
 
-void execution( void );
+void Execution( void );
 
 #endif /* EM_CPU_CHIP_8 */

@@ -1,3 +1,7 @@
 /.vscode/settings.json
 /.vscode/tasks.json
 /external/*
+/chip8/driver/SDL2
+/main.exe
+/SDL2.dll
+/*.ch8
