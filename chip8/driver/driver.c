@@ -150,10 +150,9 @@ static uint32 SetTimer(uint32 interval, void *param)
     counter++;
     if(counter == 60)
     {
-        printf(" fps test: %d \n", *pFps);
         counter = 0;
-        *pFps = 0;
     }
+    *pFps = 1;
 
     return interval;
 }

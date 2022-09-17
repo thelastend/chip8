@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define GET_DATA(d,s,m) ((d >> s) & m)
 #define BIT_4_MASK      (0xF)
@@ -19,11 +20,11 @@
 #define SHIFT_8_BITS    (0x8)
 #define SHIFT_12_BITS   (0xC)
 
-volatile static uint16 stack[STACK_SIZE];
-volatile static uint8 reg[MAX_REGISTER];
-volatile static uint16 indexReg;
-volatile static uint16 pc;
-volatile static uint8 sp;
+static uint16 stack[STACK_SIZE];
+static uint8 reg[MAX_REGISTER];
+static uint16 indexReg;
+static uint16 pc;
+static uint8 sp;
 
 static const uint8 charAddr[16] = { ADDRESS_CHAR_0, ADDRESS_CHAR_1, ADDRESS_CHAR_2, ADDRESS_CHAR_3,
                                     ADDRESS_CHAR_4, ADDRESS_CHAR_5, ADDRESS_CHAR_6, ADDRESS_CHAR_7,
@@ -34,17 +35,12 @@ static const uint8 charAddr[16] = { ADDRESS_CHAR_0, ADDRESS_CHAR_1, ADDRESS_CHAR
 
 void InitCpu(void)
 {
-    uint8 i;
     time_t t;
     pc = MEMORY_START;
     indexReg = 0;
     sp = 0;
-
-    for(i = 0; i < MAX_REGISTER; i++)
-        reg[i] = 0;
-
-    for(i = 0; i < STACK_SIZE; i++)
-        stack[i] = 0;
+    memset(reg,0, MAX_REGISTER);
+    memset(stack,0, sizeof(stack));
 
     /* init rng*/
     srand((unsigned) time(&t));
@@ -148,7 +144,6 @@ static void Set(uint16 opCode)
             break;
     }
 
-    reg[i] = reg[i] + GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
 }
 
 
@@ -197,8 +192,7 @@ static void Fx(uint16 opCode)
         }
         case(0x29):
         {
-            x = x >> 4;
-            indexReg = charAddr[x];
+            indexReg = charAddr[reg[x]];
             break;
         }
         case(0x33):
@@ -206,7 +200,6 @@ static void Fx(uint16 opCode)
             SetData(indexReg, reg[x]/100);
             SetData(indexReg+1, ((reg[x]/10)%10));
             SetData(indexReg+2, reg[x]%10);
-            indexReg = indexReg | indexReg | indexReg;
             break;
         }
         case(0x55): // LD [I], Vx
@@ -239,7 +232,8 @@ void Execution( void )
     pc += 2;
     uint8 code = (opCode >> SHIFT_12_BITS);
     uint8 x, y;
-
+    x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
+    y = GET_DATA(opCode,SHIFT_4_BITS,BIT_4_MASK);
     if(opCode == 0x00E0) //clear dispaly
     {
         GpuClearDisplay();        
@@ -267,31 +261,25 @@ void Execution( void )
             }
             case(0x3):  //cmp vx, byte skip
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
                 CompareSkip(reg[x], GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK), true);
                 break;
             }
             case(0x4):  //if not cmp vx, byte skip
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
                 CompareSkip(reg[x], GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK), false);
                 break;
             }
             case(0x5):  //if cmp vx, vy skip
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                y = GET_DATA(opCode,SHIFT_4_BITS,BIT_4_MASK);
                 CompareSkip(reg[x], reg[y], true);
                 break;
             case(0x6):  // ld vx, byte
             {
-                uint8 i = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                reg[i] = GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
+                reg[x] = GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
                 break;
             }
             case(0x7):  // add vx, byte
             {
-                uint8 i = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                reg[i] = reg[i] + GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
+                reg[x] = reg[x] + GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
                 break;                
             }
             case(0x8):  // set, add, sub, shift r and l
@@ -301,8 +289,6 @@ void Execution( void )
             }
             case(0x9):  // if not cmp vx, vy skip
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                y = GET_DATA(opCode,SHIFT_4_BITS,BIT_4_MASK);
                 CompareSkip(reg[x], reg[y], false);
                 break;                
             }
@@ -318,27 +304,17 @@ void Execution( void )
             }
             case(0xC):  // RND Vx, byte
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                uint8 rnd = rand() % 256;
-                uint16 result = GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK); + rnd;
-                if(result > 255)
-                    reg[0xF] = 1;
-                else
-                    reg[0xF] = 0;
-                reg[x] = result & 0xFF;
+                reg[x] = (rand() % 256) + GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);;
                 break;
             }
             case(0xD):
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
-                y = GET_DATA(opCode,SHIFT_4_BITS,BIT_4_MASK);
                 uint8 n = GET_DATA(opCode,SHIFT_0_BITS,BIT_4_MASK);
                 reg[0xF] = GpuSetPixel(reg[y], reg[x], indexReg, n);
                 break;
             }
             case(0xE):  //skip if key is press or not press
             {
-                x = GET_DATA(opCode,SHIFT_8_BITS,BIT_4_MASK);
                 uint8 type = GET_DATA(opCode,SHIFT_0_BITS,BIT_8_MASK);
                 if(((KeyPadPressed(reg[x]) == true) && (type == 0x9E)) ||  //key is pressed
                    ((KeyPadPressed(reg[x]) == false) && (type == 0xA1)))   //key is not pressed

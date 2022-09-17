@@ -7,6 +7,8 @@
 
 uint8 display[FRAME_Y][FRAME_X];
 
+bool drawScreen = true;
+
 void GpuClearDisplay()
 {
     uint8 y, x;
@@ -23,9 +25,7 @@ void GpuClearDisplay()
 uint8 GpuSetPixel(uint8 y, uint8 x, uint16 address, uint8 nBytes)
 {
     uint8 vf = 0;
-    uint8 buffer;
     uint8 i, setY, setX;
-    uint8 oldPixel;
 
     x = x % FRAME_X;
     y = y % FRAME_Y;
@@ -33,18 +33,20 @@ uint8 GpuSetPixel(uint8 y, uint8 x, uint16 address, uint8 nBytes)
     for(i = 0; i < nBytes; i++)
     {
         setY = y+i;
-        buffer = GetData(address+i);
+        uint8 buffer = GetData(address+i);
 
         for(setX = 0; setX < 0x8; setX++)
         {
-            if((setX+x) >= FRAME_X)
-                break;
-            oldPixel = display[setY][setX+x];
-            display[setY][setX+x] ^= ((buffer >> (7-setX)) & 1);
-            if((oldPixel == 1) && (display[setY][setX+x] == 0))
-                vf = 1;
+            uint8 pixel = (buffer >> (7-setX)) & 1;
+            if(pixel)
+            {
+                if(display[setY][setX+x] == 1)
+                    vf = 1;
+                display[setY][setX+x] ^= pixel;
+            }
         }
     }
+    drawScreen = true;
     return vf;
 }
 
@@ -60,5 +62,9 @@ void GpuInitScreen(void)
 
 void GpuDrawScreen(void)
 {
-    DrawWindwoHW(display);
+    if(drawScreen)
+    {
+        DrawWindwoHW(display);
+        drawScreen = false;
+    }
 }

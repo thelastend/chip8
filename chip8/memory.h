@@ -6,7 +6,6 @@
 #define MEOMRY_SIZE     4096
 #define MEMORY_START    0x200
 
-
 #define ADDRESS_CHAR_0  80
 #define ADDRESS_CHAR_1  85
 #define ADDRESS_CHAR_2  90
