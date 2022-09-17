@@ -16,19 +16,19 @@ void  main(void)
     GpuInitScreen();
     InitTimer(&counterCalls);
     //LoadRom("IBM_Logo.ch8");
-    LoadRom("Pong.ch8");
+    LoadRom("Blitz.ch8");
 
     while(run)
     {
-        if(counterCalls < 700)
+        if(counterCalls > 0)
         {
             Execution();
             GpuDrawScreen();
-
-            if(UpdatedQuitState() == true)
-                run = 0;
-            counterCalls++;
+            counterCalls = 0;
         }
+
+        if(UpdatedQuitState() == true)
+            run = 0;
     }
 
     CloseTimer();
