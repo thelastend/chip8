@@ -162,16 +162,17 @@ static void Fx(uint16 opCode)
         case(0xA):
         {
             uint8 i;
-            uint8 key = 0xFF;
+            bool pressed = false;
             for(i = 0; i < KEY_MAX;i++)
             {
                 if(KeyPadPressed(i) == true)
                 {
                     reg[x] = i;
+                    pressed = true;
                     break;
                 }
             }
-            if(key == 0xFF)
+            if(false == pressed)
                 pc -= 2;
             break;
         }
