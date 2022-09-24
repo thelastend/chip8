@@ -15,11 +15,12 @@ void GpuClearDisplay()
     
     for(y = 0; y < FRAME_Y; y++)
     {
-        for(x = 0; x < FRAME_Y; x++)
+        for(x = 0; x < FRAME_X; x++)
         {
             display[y][x] = 0;
         }
     }
+    drawScreen = true;
 }
 
 uint8 GpuSetPixel(uint8 y, uint8 x, uint16 address, uint8 nBytes)
