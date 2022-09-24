@@ -54,18 +54,19 @@ void DrawWindwoHW(uint8 display[FRAME_Y][FRAME_X])
         setX = 0;
         for (x = 0; x < (WINDOW_WIDTH); x++)
         {
-
+            uint32 color;
             if(((x % SCAL) == 0x00) && (setX < (FRAME_X-1)) && (x > 0))
                 setX++;
 
             if(display[setY][setX] == 1)
             {
-                screen[(y*WINDOW_WIDTH)+x] = 0xFFFFFFFF;
+                color = 0xFFFFFFFF;
             }
             else
             {
-                screen[(y*WINDOW_WIDTH)+x] = 0xFF000000;               
+                color = 0xFF000000;               
             }
+            screen[(y*WINDOW_WIDTH)+x] = color;
         }
     }
     SDL_UpdateTexture(pTexture, NULL, screen,
@@ -78,22 +79,22 @@ uint16 GetKeyStateHW(void)
 {
     uint16 status;
     const uint8_t* state = SDL_GetKeyboardState(NULL);
-    status = ((state[SDL_SCANCODE_0] & 0x1) |
-              ((state[SDL_SCANCODE_1] & 0x1) << 1) |
-              ((state[SDL_SCANCODE_2] & 0x1) << 2) |
-              ((state[SDL_SCANCODE_3] & 0x1) << 3) |
-              ((state[SDL_SCANCODE_4] & 0x1) << 4) |
-              ((state[SDL_SCANCODE_5] & 0x1) << 5) |
-              ((state[SDL_SCANCODE_6] & 0x1) << 6) |
-              ((state[SDL_SCANCODE_7] & 0x1) << 7) |
-              ((state[SDL_SCANCODE_8] & 0x1) << 8) |
-              ((state[SDL_SCANCODE_9] & 0x1) << 9) |
-              ((state[SDL_SCANCODE_A] & 0x1) << 10) |
-              ((state[SDL_SCANCODE_B] & 0x1) << 11) |
-              ((state[SDL_SCANCODE_C] & 0x1) << 12) |
-              ((state[SDL_SCANCODE_D] & 0x1) << 13) |
-              ((state[SDL_SCANCODE_E] & 0x1) << 14) |
-              ((state[SDL_SCANCODE_F] & 0x1) << 15) );
+    status = ((state[SDL_SCANCODE_1] & 0x1) |
+              ((state[SDL_SCANCODE_2] & 0x1) << 1) |
+              ((state[SDL_SCANCODE_3] & 0x1) << 2) |
+              ((state[SDL_SCANCODE_4] & 0x1) << 3) |
+              ((state[SDL_SCANCODE_Q] & 0x1) << 4) |
+              ((state[SDL_SCANCODE_W] & 0x1) << 5) |
+              ((state[SDL_SCANCODE_E] & 0x1) << 6) |
+              ((state[SDL_SCANCODE_R] & 0x1) << 7) |
+              ((state[SDL_SCANCODE_A] & 0x1) << 8) |
+              ((state[SDL_SCANCODE_S] & 0x1) << 9) |
+              ((state[SDL_SCANCODE_D] & 0x1) << 10) |
+              ((state[SDL_SCANCODE_F] & 0x1) << 11) |
+              ((state[SDL_SCANCODE_Y] & 0x1) << 12) |
+              ((state[SDL_SCANCODE_X] & 0x1) << 13) |
+              ((state[SDL_SCANCODE_C] & 0x1) << 14) |
+              ((state[SDL_SCANCODE_V] & 0x1) << 15) );
 
     return status;
 }
