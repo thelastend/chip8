@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define SUCCESS         0
+#define INVALID_PARAM  -1
 
 typedef uint8_t  uint8;
 typedef uint16_t uint16;

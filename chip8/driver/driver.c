@@ -43,7 +43,6 @@ void CloseWindwoHW()
 void DrawWindwoHW(uint8 display[FRAME_Y][FRAME_X])
 {
     uint16 y, x, setY, setX;
-    uint8 pixelR, pixelG, pixelB;
     uint32 screen[WINDOW_HIGHT * WINDOW_WIDTH];
     setY = 0;
 

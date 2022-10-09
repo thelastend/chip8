@@ -8,29 +8,37 @@
 
 uint16 counterCalls = 0;
 
-void  main(void)
+int  main(int argc, char ** agrv)
 {
+    int error = INVALID_PARAM;
     uint8 run = 1;
-    InitCpu();
-    InitMemory();
-    GpuInitScreen();
-    InitTimer(&counterCalls);
-    //LoadRom("IBM_Logo.ch8");
-    LoadRom("Blitz.ch8");
 
-    while(run)
+    if(argc > 1)
     {
-        if(counterCalls > 0)
+        InitCpu();
+        InitMemory();
+        GpuInitScreen();
+        InitTimer(&counterCalls);
+        error = LoadRom(agrv[1]);
+        if(error == SUCCESS)
         {
-            Execution();
-            GpuDrawScreen();
-            counterCalls = 0;
-        }
+            while(run)
+            {
+                if(counterCalls > 0)
+                {
+                    Execution();
+                    GpuDrawScreen();
+                    counterCalls = 0;
+                }
 
-        if(UpdatedQuitState() == true)
-            run = 0;
+                if(UpdatedQuitState() == true)
+                    run = 0;
+            }
+
+            CloseTimer();
+            GpuCloseScreen();
+        }
     }
 
-    CloseTimer();
-    GpuCloseScreen();
+    return error;
 }
